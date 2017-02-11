@@ -1,0 +1,8 @@
+MENU TITLE Network Boot Menu
+DEFAULT pe
+
+LABEL pe
+MENU LABEL Boot Windows PE from network
+KERNEL /memdisk
+INITRD winpe.iso
+APPEND iso raw

@@ -1,7 +1,8 @@
 FROM resin/%%RESIN_MACHINE_NAME%%-node
 
 # Install apt deps
-RUN apt-get clean && apt-get update && apt-get upgrade -y && apt-get install -y \
+RUN echo "deb http://deb.debian.org/debian sid main" >> /etc/apt/sources.list && \
+  apt-get clean && apt-get update && apt-get upgrade -y && apt-get install -y \
   wget \
   curl \
   apt-utils \
@@ -11,7 +12,14 @@ RUN apt-get clean && apt-get update && apt-get upgrade -y && apt-get install -y 
   raspberrypi-sys-mods \
   dnsmasq \
   samba \
+  wimtools \
+  genisoimage \
+  syslinux-common \
+  pxelinux \
   && rm -rf /var/lib/apt/lists/*
+
+# mkwinpeimg requires mkisofs, but for licensing reasons debian instead ships genisoimage
+RUN ln -s /usr/bin/genisoimage /usr/local/bin/mkisofs
 
 # Configure openssh
 RUN mkdir /var/run/sshd \
@@ -19,19 +27,17 @@ RUN mkdir /var/run/sshd \
  && sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
  && sed -i 's/UsePAM yes/UsePAM no/' /etc/ssh/sshd_config
 
-# Save source folder
-RUN printf "%s\n" "${PWD##}" > SOURCEFOLDER
-
-# Set up DHCP, TFTP and Samba
-COPY $SOURCEFOLDER/dnsmasq.conf /etc/dnsmasq.conf
-COPY $SOURCEFOLDER/smb.conf /etc/samba/smb.conf
+# Set up DHCP, TFTP, Samba and PXE
+COPY dnsmasq.conf /etc/dnsmasq.conf
+COPY smb.conf /etc/samba/smb.conf
+RUN mkdir -p /data/tftp/syslinux \
+ && cp /usr/lib/syslinux/modules/bios/* /data/tftp/syslinux/ \
+ && cp /usr/lib/syslinux/memdisk /data/tftp/ \
+ && cp /usr/lib/PXELINUX/pxelinux.0 /data/tftp/
 
 # App setup
 WORKDIR /usr/src/app
-RUN npm config set unsafe-perm true
-COPY "$SOURCEFOLDER/app/package.json" ./
-RUN JOBS=MAX npm i --production
-COPY "$SOURCEFOLDER/app" ./
+COPY app ./
 
 # Move to /
 WORKDIR /
