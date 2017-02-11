@@ -10,6 +10,7 @@ RUN apt-get clean && apt-get update && apt-get upgrade -y && apt-get install -y 
   vim \
   raspberrypi-sys-mods \
   dnsmasq \
+  samba \
   && rm -rf /var/lib/apt/lists/*
 
 # Configure openssh
@@ -21,8 +22,9 @@ RUN mkdir /var/run/sshd \
 # Save source folder
 RUN printf "%s\n" "${PWD##}" > SOURCEFOLDER
 
-# Configure dnsmasq
+# Set up DHCP, TFTP and Samba
 COPY $SOURCEFOLDER/dnsmasq.conf /etc/dnsmasq.conf
+COPY $SOURCEFOLDER/smb.conf /etc/samba/smb.conf
 
 # App setup
 WORKDIR /usr/src/app
