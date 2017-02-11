@@ -1,10 +1,5 @@
 FROM resin/%%RESIN_MACHINE_NAME%%-node
 
-# Install wget and curl
-RUN apt-get clean && apt-get update && apt-get install -y \
-  wget \
-  curl
-
 # Install apt deps
 RUN apt-get clean && apt-get update && apt-get upgrade -y && apt-get install -y \
   wget \
@@ -13,30 +8,27 @@ RUN apt-get clean && apt-get update && apt-get upgrade -y && apt-get install -y 
   build-essential \
   openssh-server \
   vim \
-  raspberrypi-sys-mods && rm -rf /var/lib/apt/lists/*
+  raspberrypi-sys-mods \
+  dnsmasq \
+  && rm -rf /var/lib/apt/lists/*
 
-# here we set up the config for openSSH.
+# Configure openssh
 RUN mkdir /var/run/sshd \
  && echo 'root:resin' | chpasswd \
  && sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
  && sed -i 's/UsePAM yes/UsePAM no/' /etc/ssh/sshd_config
 
-# Set npm
-RUN npm config set unsafe-perm true
-
 # Save source folder
 RUN printf "%s\n" "${PWD##}" > SOURCEFOLDER
 
-# Move to app dir
+# Configure dnsmasq
+COPY $SOURCEFOLDER/dnsmasq.conf /etc/dnsmasq.conf
+
+# App setup
 WORKDIR /usr/src/app
-
-# Move package.json to filesystem
+RUN npm config set unsafe-perm true
 COPY "$SOURCEFOLDER/app/package.json" ./
-
-# NPM i app
 RUN JOBS=MAX npm i --production
-
-# Move app to filesystem
 COPY "$SOURCEFOLDER/app" ./
 
 # Move to /
