@@ -17,9 +17,10 @@ RUN apt-get clean && apt-get update && apt-get upgrade -y && apt-get install -y 
   && rm -rf /var/lib/apt/lists/*
 
 # We need wimtools from debian unstable, but everything else (above) should be stable only
-RUN echo "deb http://deb.debian.org/debian sid main" >> /etc/apt/sources.list \
+RUN echo "deb http://deb.debian.org/debian sid main" > /etc/apt/sources.list.d/debian-unstable \
  && apt-get update && apt-get install -y wimtools \
- && rm -rf /var/lib/apt/lists/*
+ && rm -rf /var/lib/apt/lists/* \
+ && rm /etc/apt/sources.list.d/debian-unstable
 
 # mkwinpeimg requires mkisofs, but for licensing reasons debian instead ships genisoimage
 RUN ln -s /usr/bin/genisoimage /usr/local/bin/mkisofs
