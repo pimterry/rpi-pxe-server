@@ -1,3 +1,3 @@
 wpeinit
-net use I: \\192.168.0.1\public
-I:\windows-image\setup.exe
+net use Q: \\192.168.0.1\public /user:root resin
+Q:\windows-image\setup.exe
