@@ -1,5 +1,7 @@
 # rpi-pxe-server
-A ready-to-go PXE + TFTP network boot server for Raspberry Pi, with Resin deployment
+A ready-to-go PXE + TFTP network boot server for Raspberry Pi, with Resin deployment.
+
+Want to boot a machine from the network, don't want to have to fight with all the configuration and setup yourself, and have a raspberry pi to hand? This is the solution.
 
 Tested with:
 * Raspberry Pi 3B
@@ -7,21 +9,21 @@ Tested with:
 
 ## Set up
 
-1. Set up your device
-2. Sign up for free on [resin.io](https://dashboard.resin.io/signup), create an application, and provision it with your wifi credentials.
+1. Set up your device, with reliable power, a network cable, and optionally wifi (if you want logging or easy access).
+2. Sign up for free on [resin.io](https://dashboard.resin.io/signup), create an application, and provision it, optionally with your wifi credentials.
 3. Set the following environmental variables:
     - RESIN_SUPERVISOR_DELTA: 1 // Enables deltas for updates keeping later changes quick
-4. Clone/fork this repo, and push it to your resin.io application's repository.
-5. Set up your PXE config over samba (to /tftp), SCP (to /data/tftp), or tftp by:
+4. Clone/fork this repo, and push it to your resin.io application's repository to deploy this setup.
+5. Set up your specific PXE config over samba (to /tftp), SCP (to /data/tftp), or over tftp by:
    1. Uploading your PXE bootable image
    2. Adding your PXE config at `pxelinux.cfg/default`
 6. You're ready to go: put the device on the same network as the target machine (directly or through a router, as long as DHCP is disabled on the router), tell that target machine to boot from the network, and enjoy.
 
-You can change and push a new Dockerfile if you want to update your device to do this differently, or for quick changes there's an SSH port exposed that allows root login with the default password of 'resin'.
+You can change and push a new Dockerfile to your application if you want to carefully update your device to do this differently, or for quick changes there's an SSH port exposed that allows root login with the default password of 'resin'.
 
 ### Windows example
 
-For the specific Windows boot process this was tested with, scripts are included. See `app/windows/setup-windows-pxe.sh` in this repo (`/usr/src/app` on the device) for full details.
+For the specific Windows boot process this was tested with, scripts are included. See `app/windows/setup-windows-pxe.sh` in this repo (in `/usr/src/app` on the device) for full details.
 
 This script:
 * Builds a Windows PE image from a full Windows image.
@@ -29,6 +31,7 @@ This script:
 * Make this Windows PE image bootable through PXE.
 
 To run this script:
+
 1. Copy a Windows iso across to the device, either via samba or scp.
 2. SSH into the device
 3. Run `/usr/src/app/windows/setup-windows-pxe.sh <path_to_full_windows_iso>`
