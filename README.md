@@ -27,8 +27,8 @@ For the specific Windows boot process this was tested with, scripts are included
 
 This script:
 * Builds a Windows PE image from a full Windows image.
-* Configures the Windows PE image to chainload, by sharing the full Windows image over Samba, and running it remotely on bootup.
-* Make this Windows PE image bootable through PXE.
+* Mounts the full Windows image within the Samba share to make it accessible.
+* Makes the Windows PE image bootable through PXE.
 
 To run this script:
 
@@ -36,7 +36,7 @@ To run this script:
 2. SSH into the device
 3. Run `/usr/src/app/windows/setup-windows-pxe.sh <path_to_full_windows_iso>`
 
-Once this is complete, any machine attached to the device should now boot into the full Windows install process.
+Once this is complete, any machine attached to the device should now boot into Windows PE, from which you can start the full Windows install process.
 
 Note that it seems Microsoft's iso download process makes it easy to end up with corrupted iso's, which will typicall start up, but refuse to install. To check for this, run `md5sum` on your iso to get its md5, and google for the hash. Any valid official image should return a huge number of related results.
 
